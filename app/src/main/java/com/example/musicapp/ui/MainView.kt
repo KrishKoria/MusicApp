@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.musicapp.AccountDialog
 import com.example.musicapp.MainViewModel
 import com.example.musicapp.Screens
 import kotlinx.coroutines.launch
@@ -53,7 +54,7 @@ fun MainView() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
+    val dialogOpen = remember { mutableStateOf(false) }
     val title = remember { mutableStateOf(currentScreen.title) }
     ModalNavigationDrawer(drawerContent = {
         ModalDrawerSheet {
@@ -72,10 +73,9 @@ fun MainView() {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-
                             }
                             if (screen.dRoute == "add_account") {
-                                //dialog
+                                dialogOpen.value = true
                             } else {
                                 navController.navigate(screen.dRoute)
                                 title.value = screen.dTitle
@@ -88,7 +88,7 @@ fun MainView() {
     }, drawerState = drawerState, gesturesEnabled = true) {
         Scaffold(
             topBar = {
-                TopAppBar(title = { Text(text = "Hello") },
+                TopAppBar(title = { Text(text = title.value) },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -106,6 +106,7 @@ fun MainView() {
             },
         ) {
             Navigation(navController, viewModel, it)
+            AccountDialog(dialogOpen = dialogOpen)
         }
     }
 }

@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,23 +61,31 @@ fun MainView() {
     val title = remember { mutableStateOf(currentScreen.title) }
     val bottomBar: @Composable () -> Unit = {
         if (currentScreen is Screens.DrawerScreen || currentScreen == Screens.BottomScreen.Home) {
-            BottomAppBar(Modifier.wrapContentSize()) {
-                screensInBottom.forEach { screen ->
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = screen.icon),
-                                contentDescription = screen.title,
-                                Modifier.padding(end = 8.dp, top = 4.dp)
-                            )
-                        },
-                        label = { Text(screen.title) },
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            navController.navigate(screen.route)
-                            title.value = screen.title
-                        }
-                    )
+            Card(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(bottom = 16.dp),
+                shape = CircleShape,
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                BottomAppBar{
+                    screensInBottom.forEach { screen ->
+                        NavigationBarItem(
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = screen.icon),
+                                    contentDescription = screen.title,
+                                    Modifier.padding(end = 8.dp, top = 4.dp)
+                                )
+                            },
+                            label = { Text(screen.title) },
+                            selected = currentRoute == screen.route,
+                            onClick = {
+                                navController.navigate(screen.route)
+                                title.value = screen.title
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -129,19 +140,28 @@ fun MainView() {
                     })
             },
         ) {
-            Navigation(navController, viewModel, it)
+            Navigation(navController, it)
             AccountDialog(dialogOpen = dialogOpen)
         }
     }
 }
 
 @Composable
-fun Navigation(navController: NavHostController, viewModel: MainViewModel, pd: PaddingValues) {
+fun Navigation(navController: NavHostController, pd: PaddingValues) {
     NavHost(
         navController = navController,
         startDestination = Screens.DrawerScreen.Account.dRoute,
         modifier = Modifier.padding(pd)
     ) {
+        composable(Screens.BottomScreen.Home.route) {
+            HomeView()
+        }
+        composable(Screens.BottomScreen.Browse.route) {
+            BrowseScreen()
+        }
+        composable(Screens.BottomScreen.Library.route) {
+            LibraryScreen()
+        }
         composable(Screens.DrawerScreen.Account.dRoute) {
             AccountView()
         }
